@@ -25,11 +25,11 @@ class ArgHandler:
 
     @staticmethod
     def add(params: argparse.Namespace) -> None:
-        AddHandler.handle(Path(params.filename))
+        AddHandler().handle(Path(params.filename))
 
     @staticmethod
     def status(params: argparse.Namespace) -> None:
-        StatusHandler.handle()
+        StatusHandler().handle()
 
 
 command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {

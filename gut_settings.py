@@ -7,4 +7,3 @@ class GutSettings:
     INDEX_FILE: Path = Path(GUT_DIR / "index.csv")
 
     INDEX_FIELD_DELIMITER: str = ':'
-    BUFFER_SIZE: int = 65536
