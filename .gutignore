@@ -1,0 +1,6 @@
+venv
+.git
+.idea
+index_objects\__pycache__
+command_handlers\__pycache__
+__pycache__

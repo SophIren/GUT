@@ -12,7 +12,7 @@ class AddHandler(CommonHandler):
             self.index[obj_entry.file_name] = obj_entry
 
             if obj_entry.type == IndexEntry.EntryType.FILE:
-                shutil.copy(obj_entry.path, self.settings.OBJECTS_DIR / obj_entry.stage_hash)
+                shutil.copy(obj_entry.path, self.settings.OBJECTS_DIR_PATH / obj_entry.stage_hash)
             if obj_entry.type == IndexEntry.EntryType.DIRECTORY:
                 self.write_object(
                     obj_entry.stage_hash,
