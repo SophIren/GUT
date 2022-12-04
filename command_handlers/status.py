@@ -28,7 +28,7 @@ class StatusHandler(CommonHandler):
                 excluded.append(str(obj_entry.path))
             elif self.index[obj_entry.file_name].stage_hash != obj_entry.dir_hash:
                 modified.append(str(obj_entry.path))
-            else:
+            elif self.index[obj_entry.file_name].repo_hash != obj_entry.dir_hash:
                 gut.append(str(obj_entry.path))
 
         self.write_index()

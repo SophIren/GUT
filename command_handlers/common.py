@@ -44,7 +44,7 @@ class CommonHandler:
                 yield child_index_entry
             if last_child_index_entry is not None:
                 child_entries.append(last_child_index_entry)
-        dir_hash = self.hash_content_lines(child_entry.to_tree_content_line() for child_entry in child_entries)
+        dir_hash = self.hash_content('\n'.join(child_entry.to_tree_content_line() for child_entry in child_entries))
         index_entry = self.index.get(obj_path.name,
                                      IndexEntry(
                                          file_name=obj_path.name,
@@ -98,8 +98,8 @@ class CommonHandler:
         return sha1.hexdigest()
 
     @classmethod
-    def hash_content_lines(cls, tree_content_lines: Iterable[str]) -> str:
-        return hashlib.sha1('\n'.join(tree_content_lines).encode()).hexdigest()
+    def hash_content(cls, content: str) -> str:
+        return hashlib.sha1(content.encode()).hexdigest()
 
     @classmethod
     def write_object(cls, obj_hash: str, content: str):
