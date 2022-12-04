@@ -6,10 +6,9 @@ from index_objects.index_entry import IndexEntry
 from index_objects.tree_entry import TreeEntry
 
 
-def cast_index_entry_to_blob_entry(index_entry: IndexEntry, path: Path) -> BlobEntry:
+def cast_index_entry_to_blob_entry(index_entry: IndexEntry) -> BlobEntry:
     return BlobEntry(
-        file_name=index_entry.file_name,
-        path=path,
+        file_path=index_entry.file_path,
         timestamp=index_entry.timestamp,
         dir_hash=index_entry.dir_hash,
         repo_hash=index_entry.repo_hash,
@@ -17,10 +16,9 @@ def cast_index_entry_to_blob_entry(index_entry: IndexEntry, path: Path) -> BlobE
     )
 
 
-def cast_index_entry_to_tree_entry(index_entry: IndexEntry, path: Path, child_entries: List[IndexEntry]) -> TreeEntry:
+def cast_index_entry_to_tree_entry(index_entry: IndexEntry, child_entries: List[IndexEntry]) -> TreeEntry:
     return TreeEntry(
-        file_name=index_entry.file_name,
-        path=path,
+        file_path=index_entry.file_path,
         timestamp=index_entry.timestamp,
         dir_hash=index_entry.dir_hash,
         repo_hash=index_entry.repo_hash,

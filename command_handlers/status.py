@@ -22,14 +22,19 @@ class StatusHandler(CommonHandler):
         modified: List[str] = []
         gut: List[str] = []
         for obj_entry in self.traverse_obj(Path('.')):
-            if obj_entry.path == Path('.'):
+            if obj_entry.file_path == Path('.'):
                 continue
-            if obj_entry.file_name not in self.index:
-                excluded.append(str(obj_entry.path))
-            elif self.index[obj_entry.file_name].stage_hash != obj_entry.dir_hash:
-                modified.append(str(obj_entry.path))
-            elif self.index[obj_entry.file_name].repo_hash != obj_entry.dir_hash:
-                gut.append(str(obj_entry.path))
+            if obj_entry.file_path.parent not in self.index and obj_entry.file_path.parent != Path('.'):
+                continue
+            if obj_entry.file_path not in self.index:
+                excluded.append(str(obj_entry.file_path))
+                continue
+
+            index_entry = self.index[obj_entry.file_path]
+            if index_entry.stage_hash != obj_entry.dir_hash:
+                modified.append(str(obj_entry.file_path))
+            elif index_entry.repo_hash != obj_entry.dir_hash and index_entry.type == index_entry.EntryType.FILE:
+                gut.append(str(obj_entry.file_path))
 
         self.write_index()
         self.pprint(excluded, modified, gut)

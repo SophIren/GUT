@@ -8,12 +8,12 @@ from index_objects.index_entry import IndexEntry
 class CommitHandler(CommonHandler):
     def handle(self, path: Path, message: str) -> None:
         head_hash = self.read_head()
-        commit_objects = list(filter(lambda com_obj: com_obj.file_name in self.index, self.traverse_obj(path)))
+        commit_objects = list(filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)))
         commit_content = self.get_commit_content(message, commit_objects, head_hash)
         commit_hash = self.hash_content(commit_content)
 
         for obj in commit_objects:
-            self.index[obj.file_name].repo_hash = obj.stage_hash
+            self.index[obj.file_path].repo_hash = obj.stage_hash
 
         self.write_head(commit_hash)
         self.write_index()

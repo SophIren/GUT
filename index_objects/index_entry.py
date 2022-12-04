@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 
 
 class IndexEntry:
@@ -17,10 +18,10 @@ class IndexEntry:
         FILE = "blob"
         DIRECTORY = "tree"
 
-    def __init__(self, file_name: str, timestamp: datetime,
+    def __init__(self, file_path: Path, timestamp: datetime,
                  dir_hash: str, entry_type: IndexEntry.EntryType,
                  repo_hash: str = '', stage_hash: str = ''):
-        self.file_name = file_name
+        self.file_path = file_path
         self.timestamp = timestamp
         self.dir_hash = dir_hash
         self.stage_hash = stage_hash
@@ -28,4 +29,4 @@ class IndexEntry:
         self.type = entry_type
 
     def to_tree_content_line(self) -> str:
-        return f"{self.type} {self.stage_hash} {self.file_name}"
+        return f"{self.type} {self.stage_hash} {self.file_path}"
