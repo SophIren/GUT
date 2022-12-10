@@ -2,20 +2,17 @@ import csv
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Set, Callable
+from typing import Dict, Optional
 
-from gut_settings import GutSettings
+from handlers.gutignore_handler import GutignoreHandler
 from index_objects.index_entry import IndexEntry
-from index_objects.tree_entry import TreeEntry
 from path_extensions import apply_func_to_batches
 
 
-class CommonHandler:  # ToDo: Разобрать портянку
-    settings = GutSettings
-
+class IndexHandler(GutignoreHandler):  # ToDo: Разобрать портянку
     def __init__(self):
+        super().__init__()
         self.index = self.read_index()
-        self.gutignore = self.read_gutignore()
 
     def get_from_index(
             self, obj_path: Path, dir_hash: Optional[str] = None, entry_type: Optional[IndexEntry.EntryType] = None,
@@ -34,8 +31,8 @@ class CommonHandler:  # ToDo: Разобрать портянку
             )
 
     def read_index(self) -> Dict[Path, IndexEntry]:
-        with self.settings.INDEX_FILE_PATH.open() as index_file:
-            csv_reader = csv.DictReader(index_file, delimiter=self.settings.INDEX_FIELD_DELIMITER)
+        with self.INDEX_FILE_PATH.open() as index_file:
+            csv_reader = csv.DictReader(index_file, delimiter=self.INDEX_FIELD_DELIMITER)
             index = {}
             for row in csv_reader:
                 path = Path(row[IndexEntry.FieldName.FILE_NAME])
@@ -49,8 +46,8 @@ class CommonHandler:  # ToDo: Разобрать портянку
         return index
 
     def write_index(self) -> None:
-        with self.settings.INDEX_FILE_PATH.open(mode='w') as index_file:
-            csv_writer = csv.DictWriter(index_file, delimiter=self.settings.INDEX_FIELD_DELIMITER,
+        with self.INDEX_FILE_PATH.open(mode='w') as index_file:
+            csv_writer = csv.DictWriter(index_file, delimiter=self.INDEX_FIELD_DELIMITER,
                                         fieldnames=list(IndexEntry.FieldName))
             csv_writer.writeheader()
             for file_path in self.index:
@@ -62,13 +59,6 @@ class CommonHandler:  # ToDo: Разобрать портянку
                     IndexEntry.FieldName.REPO_HASH: self.index[file_path].repo_hash,
                     IndexEntry.FieldName.ENTRY_TYPE: self.index[file_path].type,
                 })
-
-    def read_gutignore(self) -> Set[Path]:  # ToDo check if .gutignore doesn't exist
-        res = {self.settings.GUTIGNORE_FILE_PATH, self.settings.GUT_DIR_PATH}
-        with self.settings.GUTIGNORE_FILE_PATH.open(mode='r') as gutignore_file:
-            for line in gutignore_file.readlines():
-                res.add(Path(line.strip()))
-        return res
 
     @classmethod
     def hash_file(cls, file_path: Path) -> str:
@@ -82,14 +72,4 @@ class CommonHandler:  # ToDo: Разобрать портянку
 
     @classmethod
     def write_object(cls, obj_hash: str, content: str) -> None:
-        (cls.settings.OBJECTS_DIR_PATH / obj_hash).write_text(content)
-
-    @classmethod
-    def serialize_tree_content(
-            cls, tree: TreeEntry, filter_func: Optional[Callable[[IndexEntry], bool]] = None
-    ) -> str:
-        if filter_func is None:
-            filter_func = lambda x: True
-        return '\n'.join(
-            child_entry.to_tree_content_line() for child_entry in filter(filter_func, tree.child_entries)
-        )
+        (cls.OBJECTS_DIR_PATH / obj_hash).write_text(content)

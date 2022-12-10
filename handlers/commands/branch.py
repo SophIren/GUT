@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from handlers.branch import BranchInfoHandler
+from handlers.branch_info_handler import BranchInfoHandler
 
 
 class BranchHandler(BranchInfoHandler):
@@ -39,11 +39,11 @@ class BranchHandler(BranchInfoHandler):
 
     def rename_branch(self, branch_path: Path, new_branch_path: Path) -> None:
         new_branch_path = branch_path.rename(new_branch_path)
-        self.settings.HEAD_FILE_PATH.write_text(str(new_branch_path))
+        self.HEAD_FILE_PATH.write_text(str(new_branch_path))
 
     def print_branches(self) -> None:
         print()
-        for branch in self.settings.HEADS_DIR_PATH.glob('*'):
+        for branch in self.HEADS_DIR_PATH.glob('*'):
             if branch == self.current_branch:
                 print(f"{branch.name} <-")
             else:

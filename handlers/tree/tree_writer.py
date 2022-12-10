@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from handlers.common import CommonHandler
+from handlers.index_handler import IndexHandler
 
 
-class TreeWriteHandler(CommonHandler):
+class TreeWriteHandler(IndexHandler):
     def drop_commited(self, commit_path: Path):
         pass
 

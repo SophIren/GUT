@@ -11,6 +11,6 @@ class GutSettings:
     GUTIGNORE_FILE_PATH: Path = Path(".gutignore")
     HEAD_FILE_PATH: Path = GUT_DIR_PATH / "head.txt"
 
-    DEFAULT_HEAD_FILE_PATH: str = HEADS_DIR_PATH / "master"
+    DEFAULT_HEAD_FILE_PATH: Path = HEADS_DIR_PATH / "master"
 
     INDEX_FIELD_DELIMITER: str = ':'

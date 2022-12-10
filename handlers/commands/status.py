@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List
 
-from handlers.branch import BranchInfoHandler
+from handlers.branch_info_handler import BranchInfoHandler
 from handlers.tree.tree_reader import TreeReadHandler
 
 
