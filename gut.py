@@ -39,11 +39,9 @@ class ArgHandler:
 
     @staticmethod
     def branch(params: argparse.Namespace) -> None:
-        if params.delete:
-            print(params.delete)
-        if params.rename:
-            print(params.rename)
-        BranchHandler().handle()
+        BranchHandler().handle(
+            switch_to=params.switch, rename_to=params.rename, delete_name=params.delete
+        )
 
 
 command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {
@@ -69,8 +67,10 @@ commit_parser.add_argument("path", type=str)
 commit_parser.add_argument("message", type=str)
 
 branch_parser = subparsers.add_parser(Command.branch, help="gut branches")
-branch_parser.add_argument("-d", "--delete")
-branch_parser.add_argument("-r", "--rename")
+branch_parser.add_argument("switch", type=str, nargs='?')
+branch_parser.add_argument("-c", "--create", type=str)
+branch_parser.add_argument("-d", "--delete", type=str)
+branch_parser.add_argument("-r", "--rename", type=str)
 
 args = parser.parse_args()
 command = Command(args.command_name)
