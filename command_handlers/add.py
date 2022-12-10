@@ -14,9 +14,7 @@ class AddHandler(CommonHandler):
             if obj_entry.type == IndexEntry.EntryType.FILE:
                 shutil.copy(obj_entry.file_path, self.settings.OBJECTS_DIR_PATH / obj_entry.stage_hash)
             if obj_entry.type == IndexEntry.EntryType.DIRECTORY:
-                self.write_object(
-                    obj_entry.stage_hash,
-                    '\n'.join(child_entry.to_tree_content_line() for child_entry in obj_entry.child_entries))
+                self.write_object(obj_entry.stage_hash, self.serialize_tree_content(obj_entry))
 
         parent_dir = path.parent
         while parent_dir in self.index:

@@ -1,23 +1,30 @@
 from pathlib import Path
-from typing import Iterable
 
 from command_handlers.common import CommonHandler
-from index_objects.index_entry import IndexEntry
 
 
 class CommitHandler(CommonHandler):
     def handle(self, path: Path, message: str) -> None:
+        root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True))
+        self.write_object(root_dir_entry.stage_hash, self.serialize_tree_content(root_dir_entry))
+
+        for obj_entry in filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)):
+            obj_entry.repo_hash = obj_entry.stage_hash
+            self.index[obj_entry.file_path] = obj_entry
+
+        parent_dir = path.parent
+        while parent_dir in self.index:
+            parent_entry = next(self.traverse_obj(parent_dir, only_current=True))
+            self.index[parent_dir].repo_hash = parent_entry.stage_hash
+            parent_dir = parent_dir.parent
+
         current_commit = self.branch_info.current_branch.read_text()
-        commit_objects = list(filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)))
-        commit_content = self.get_commit_content(message, commit_objects, current_commit)
+        commit_content = self.get_commit_content(message, root_dir_entry.stage_hash, current_commit)
         commit_hash = self.hash_content(commit_content)
-
-        for obj in commit_objects:
-            self.index[obj.file_path].repo_hash = obj.stage_hash
-
         self.write_head(commit_hash)
-        self.write_index()
         self.write_object(commit_hash, commit_content)
+
+        self.write_index()
 
     def read_head(self) -> str:
         return self.settings.HEAD_FILE_PATH.read_text()
@@ -26,8 +33,5 @@ class CommitHandler(CommonHandler):
         self.branch_info.current_branch.write_text(head_hash)
 
     @classmethod
-    def get_commit_content(cls, message: str, index_objects: Iterable[IndexEntry], parent_hash: str) -> str:
-        lines = [f"parent {parent_hash}"] if parent_hash else []
-        for obj in index_objects:
-            lines.append(f"{obj.type} {obj.stage_hash}")
-        return '\n'.join(lines) + f"\n\n{message}"
+    def get_commit_content(cls, message: str, root_dir_hash: str, parent_hash: str) -> str:
+        return f"parent {parent_hash}\ntree {root_dir_hash}\n\n{message}"

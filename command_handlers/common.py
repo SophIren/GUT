@@ -108,3 +108,7 @@ class CommonHandler:
     @classmethod
     def write_object(cls, obj_hash: str, content: str) -> None:
         (cls.settings.OBJECTS_DIR_PATH / obj_hash).write_text(content)
+
+    @classmethod
+    def serialize_tree_content(cls, tree: TreeEntry) -> str:
+        return '\n'.join(child_entry.to_tree_content_line() for child_entry in tree.child_entries)
