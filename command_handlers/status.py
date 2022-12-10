@@ -37,10 +37,12 @@ class StatusHandler(CommonHandler):
                 gut.append(str(obj_entry.file_path))
 
         self.write_index()
-        self.pprint(excluded, modified, gut)
+        self.pprint(excluded, modified, gut, self.branch_info.current_branch.name)
 
     @classmethod
-    def pprint(cls, excluded: List[str], modified: List[str], gut: List[str]):
+    def pprint(cls, excluded: List[str], modified: List[str], gut: List[str], current_branch: str):
+        print(f"\nOn branch {current_branch}\n")
+
         if excluded:
             print(f"\n{cls.Colors.FAIL}Very not gut!!!{cls.Colors.ENDC}\nAdd to index with gut add")
             print(f"{cls.Colors.FAIL}    " + '\n    '.join(excluded) + cls.Colors.ENDC)

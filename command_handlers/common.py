@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Set, Iterator
 
+from branch_info_reader import BranchInfoReader
 from gut_settings import GutSettings
 from index_objects.blob_entry import BlobEntry
 from index_objects.casts import cast_index_entry_to_blob_entry, cast_index_entry_to_tree_entry
@@ -18,6 +19,7 @@ class CommonHandler:
     def __init__(self):
         self.index = self.read_index()
         self.gutignore = self.read_gutignore()
+        self.branch_info = BranchInfoReader(self.settings.HEAD_FILE_PATH, self.settings.HEADS_DIR_PATH)
 
     def traverse_obj(self, obj_path: Path, only_current=False) -> Iterator[Union[BlobEntry, TreeEntry]]:
         if obj_path in self.gutignore:
@@ -104,6 +106,5 @@ class CommonHandler:
         return hashlib.sha1(content.encode()).hexdigest()
 
     @classmethod
-    def write_object(cls, obj_hash: str, content: str):
-        with (cls.settings.OBJECTS_DIR_PATH / obj_hash).open(mode='w') as obj_file:
-            obj_file.write(content)
+    def write_object(cls, obj_hash: str, content: str) -> None:
+        (cls.settings.OBJECTS_DIR_PATH / obj_hash).write_text(content)

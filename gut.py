@@ -15,6 +15,7 @@ class Command(str, Enum):
     commit = "commit"
     reset = "reset"
     branch = "branch"
+    checkout = "checkout"
 
     def __str__(self) -> str:
         return self.value
@@ -39,11 +40,15 @@ class ArgHandler:
 
     @staticmethod
     def branch(params: argparse.Namespace) -> None:
-        if params.delete:
-            print(params.delete)
-        if params.rename:
-            print(params.rename)
-        BranchHandler().handle()
+        BranchHandler().handle(
+            create_name=params.create,
+            rename_to_name=params.rename,
+            delete_name=params.delete
+        )
+
+    @staticmethod
+    def checkout():
+        pass
 
 
 command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {
@@ -51,7 +56,8 @@ command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {
     Command.add: ArgHandler.add,
     Command.status: ArgHandler.status,
     Command.commit: ArgHandler.commit,
-    Command.branch: ArgHandler.branch
+    Command.branch: ArgHandler.branch,
+    Command.checkout: ArgHandler.checkout,
 }
 
 parser = argparse.ArgumentParser(description='GUT VCS')
@@ -69,8 +75,11 @@ commit_parser.add_argument("path", type=str)
 commit_parser.add_argument("message", type=str)
 
 branch_parser = subparsers.add_parser(Command.branch, help="gut branches")
-branch_parser.add_argument("-d", "--delete")
-branch_parser.add_argument("-r", "--rename")
+branch_parser.add_argument("-c", "--create", type=str)
+branch_parser.add_argument("-d", "--delete", type=str)
+branch_parser.add_argument("-r", "--rename", type=str)
+
+# checkout_parser = subparsers.add_parser(Command)
 
 args = parser.parse_args()
 command = Command(args.command_name)

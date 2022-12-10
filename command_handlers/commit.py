@@ -7,9 +7,9 @@ from index_objects.index_entry import IndexEntry
 
 class CommitHandler(CommonHandler):
     def handle(self, path: Path, message: str) -> None:
-        head_hash = self.read_head()
+        current_commit = self.branch_info.current_branch.read_text()
         commit_objects = list(filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)))
-        commit_content = self.get_commit_content(message, commit_objects, head_hash)
+        commit_content = self.get_commit_content(message, commit_objects, current_commit)
         commit_hash = self.hash_content(commit_content)
 
         for obj in commit_objects:
@@ -19,15 +19,11 @@ class CommitHandler(CommonHandler):
         self.write_index()
         self.write_object(commit_hash, commit_content)
 
-    @classmethod
-    def read_head(cls) -> str:
-        with cls.settings.HEAD_FILE_PATH.open() as head_file:
-            return head_file.read()
+    def read_head(self) -> str:
+        return self.settings.HEAD_FILE_PATH.read_text()
 
-    @classmethod
-    def write_head(cls, head_hash) -> None:
-        with cls.settings.HEAD_FILE_PATH.open(mode='w') as head_file:
-            head_file.write(head_hash)
+    def write_head(self, head_hash: str) -> None:
+        self.branch_info.current_branch.write_text(head_hash)
 
     @classmethod
     def get_commit_content(cls, message: str, index_objects: Iterable[IndexEntry], parent_hash: str) -> str:
