@@ -2,7 +2,7 @@ import csv
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Set, Iterator
+from typing import Dict, List, Optional, Union, Set, Iterator, Callable
 
 from branch_info_reader import BranchInfoReader
 from gut_settings import GutSettings
@@ -110,5 +110,11 @@ class CommonHandler:
         (cls.settings.OBJECTS_DIR_PATH / obj_hash).write_text(content)
 
     @classmethod
-    def serialize_tree_content(cls, tree: TreeEntry) -> str:
-        return '\n'.join(child_entry.to_tree_content_line() for child_entry in tree.child_entries)
+    def serialize_tree_content(
+            cls, tree: TreeEntry, filter_func: Optional[Callable[[IndexEntry], bool]] = None
+    ) -> str:
+        if filter_func is None:
+            filter_func = lambda x: True
+        return '\n'.join(
+            child_entry.to_tree_content_line() for child_entry in filter(filter_func, tree.child_entries)
+        )

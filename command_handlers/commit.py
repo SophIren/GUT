@@ -6,7 +6,8 @@ from command_handlers.common import CommonHandler
 class CommitHandler(CommonHandler):
     def handle(self, path: Path, message: str) -> None:
         root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True))
-        self.write_object(root_dir_entry.stage_hash, self.serialize_tree_content(root_dir_entry))
+        self.write_object(root_dir_entry.dir_hash,
+                          self.serialize_tree_content(root_dir_entry, filter_func=lambda e: e.stage_hash in self.index))
 
         for obj_entry in filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)):
             obj_entry.repo_hash = obj_entry.stage_hash
