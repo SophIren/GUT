@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import List
 
 from index_objects.blob_entry import BlobEntry

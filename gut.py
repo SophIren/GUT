@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Callable
 
 from command_handlers import InitHandler, AddHandler, StatusHandler, CommitHandler
+from command_handlers.branch import BranchHandler
 
 
 class Command(str, Enum):
@@ -13,6 +14,7 @@ class Command(str, Enum):
     status = "status"
     commit = "commit"
     reset = "reset"
+    branch = "branch"
 
     def __str__(self) -> str:
         return self.value
@@ -35,12 +37,21 @@ class ArgHandler:
     def commit(params: argparse.Namespace) -> None:
         CommitHandler().handle(Path(params.path), params.message)
 
+    @staticmethod
+    def branch(params: argparse.Namespace) -> None:
+        if params.delete:
+            print(params.delete)
+        if params.rename:
+            print(params.rename)
+        BranchHandler().handle()
+
 
 command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {
     Command.init: ArgHandler.init,
     Command.add: ArgHandler.add,
     Command.status: ArgHandler.status,
-    Command.commit: ArgHandler.commit
+    Command.commit: ArgHandler.commit,
+    Command.branch: ArgHandler.branch
 }
 
 parser = argparse.ArgumentParser(description='GUT VCS')
@@ -56,6 +67,10 @@ status_parser = subparsers.add_parser(Command.status, help="very gut status")
 commit_parser = subparsers.add_parser(Command.commit, help="Very gut commit chmod")
 commit_parser.add_argument("path", type=str)
 commit_parser.add_argument("message", type=str)
+
+branch_parser = subparsers.add_parser(Command.branch, help="gut branches")
+branch_parser.add_argument("-d", "--delete")
+branch_parser.add_argument("-r", "--rename")
 
 args = parser.parse_args()
 command = Command(args.command_name)
