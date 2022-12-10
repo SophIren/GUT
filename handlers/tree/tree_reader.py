@@ -1,0 +1,44 @@
+from pathlib import Path
+from typing import Optional, List, Iterator, Union
+
+from handlers.common import CommonHandler
+from index_objects.blob_entry import BlobEntry
+from index_objects.casts import cast_index_entry_to_blob_entry, cast_index_entry_to_tree_entry
+from index_objects.index_entry import IndexEntry
+from index_objects.tree_entry import TreeEntry
+
+
+class TreeReadHandler(CommonHandler):
+    def traverse_obj(
+            self, obj_path: Path, only_current=False, only_staged=False
+    ) -> Iterator[Union[BlobEntry, TreeEntry]]:
+        if obj_path in self.gutignore:
+            return
+
+        is_dir = obj_path.is_dir()
+        if not is_dir:
+            dir_hash = self.hash_file(obj_path)
+            index_entry = self.get_from_index(obj_path, dir_hash=dir_hash, entry_type=IndexEntry.EntryType.FILE,
+                                              create_new=not only_staged)
+            if index_entry is None:
+                return
+            index_entry.dir_hash = dir_hash
+            yield cast_index_entry_to_blob_entry(index_entry)
+            return
+
+        child_entries: List[IndexEntry] = []
+        for child_obj_path in obj_path.glob('*'):
+            last_child_index_entry: Optional[IndexEntry] = None
+            for child_index_entry in self.traverse_obj(child_obj_path, only_staged=only_staged):
+                last_child_index_entry = child_index_entry
+                if not only_current:
+                    yield child_index_entry
+            if last_child_index_entry is not None:
+                child_entries.append(last_child_index_entry)
+        dir_hash = self.hash_content('\n'.join(child_entry.to_tree_content_line() for child_entry in child_entries))
+        index_entry = self.get_from_index(obj_path, dir_hash=dir_hash, entry_type=IndexEntry.EntryType.DIRECTORY,
+                                          create_new=not only_staged)
+        if index_entry is None:
+            return
+        index_entry.dir_hash = dir_hash
+        yield cast_index_entry_to_tree_entry(index_entry, child_entries=child_entries)

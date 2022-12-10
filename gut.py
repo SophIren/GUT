@@ -4,8 +4,7 @@ from pathlib import Path
 
 from typing import Dict, Callable
 
-from command_handlers import InitHandler, AddHandler, StatusHandler, CommitHandler
-from command_handlers.branch import BranchHandler
+from handlers.commands import InitHandler, AddHandler, StatusHandler, CommitHandler, BranchHandler
 
 
 class Command(str, Enum):
@@ -78,8 +77,6 @@ branch_parser = subparsers.add_parser(Command.branch, help="gut branches")
 branch_parser.add_argument("-c", "--create", type=str)
 branch_parser.add_argument("-d", "--delete", type=str)
 branch_parser.add_argument("-r", "--rename", type=str)
-
-# checkout_parser = subparsers.add_parser(Command)
 
 args = parser.parse_args()
 command = Command(args.command_name)

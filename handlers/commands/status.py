@@ -2,10 +2,11 @@ from enum import Enum
 from pathlib import Path
 from typing import List
 
-from command_handlers.common import CommonHandler
+from handlers.branch import BranchInfoHandler
+from handlers.tree.tree_reader import TreeReadHandler
 
 
-class StatusHandler(CommonHandler):
+class StatusHandler(BranchInfoHandler, TreeReadHandler):
     class Colors(str, Enum):
         HEADER = '\033[95m'
         OKBLUE = '\033[94m'
@@ -37,7 +38,7 @@ class StatusHandler(CommonHandler):
                 gut.append(str(obj_entry.file_path))
 
         self.write_index()
-        self.pprint(excluded, modified, gut, self.branch_info.current_branch.name)
+        self.pprint(excluded, modified, gut, self.current_branch.name)
 
     @classmethod
     def pprint(cls, excluded: List[str], modified: List[str], gut: List[str], current_branch: str):

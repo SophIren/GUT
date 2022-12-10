@@ -1,4 +1,4 @@
-from command_handlers.common import CommonHandler
+from handlers.common import CommonHandler
 
 
 class InitHandler(CommonHandler):

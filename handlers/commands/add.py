@@ -1,11 +1,11 @@
 import shutil
 from pathlib import Path
 
-from command_handlers.common import CommonHandler
+from handlers.tree.tree_reader import TreeReadHandler
 from index_objects.index_entry import IndexEntry
 
 
-class AddHandler(CommonHandler):
+class AddHandler(TreeReadHandler):
     def handle(self, path: Path) -> None:
         for obj_entry in self.traverse_obj(path):
             obj_entry.stage_hash = obj_entry.dir_hash
