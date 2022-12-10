@@ -1,15 +1,13 @@
 import csv
-import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
 
 from handlers.gutignore_handler import GutignoreHandler
 from index_objects.index_entry import IndexEntry
-from path_extensions import apply_func_to_batches
 
 
-class IndexHandler(GutignoreHandler):  # ToDo: Разобрать портянку
+class IndexHandler(GutignoreHandler):
     def __init__(self):
         super().__init__()
         self.index = self.read_index()
@@ -59,17 +57,3 @@ class IndexHandler(GutignoreHandler):  # ToDo: Разобрать портянк
                     IndexEntry.FieldName.REPO_HASH: self.index[file_path].repo_hash,
                     IndexEntry.FieldName.ENTRY_TYPE: self.index[file_path].type,
                 })
-
-    @classmethod
-    def hash_file(cls, file_path: Path) -> str:
-        sha1 = hashlib.sha1()
-        apply_func_to_batches(file_path, lambda data: sha1.update(data))
-        return sha1.hexdigest()
-
-    @classmethod
-    def hash_content(cls, content: str) -> str:
-        return hashlib.sha1(content.encode()).hexdigest()
-
-    @classmethod
-    def write_object(cls, obj_hash: str, content: str) -> None:
-        (cls.OBJECTS_DIR_PATH / obj_hash).write_text(content)

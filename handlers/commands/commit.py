@@ -2,11 +2,12 @@ from datetime import datetime
 from pathlib import Path
 
 from handlers.branch_info_handler import BranchInfoHandler
+from handlers.hash_handler import HashHandler
 from handlers.tree.tree_reader import TreeReadHandler
 from index_objects.index_entry import IndexEntry
 
 
-class CommitHandler(BranchInfoHandler, TreeReadHandler):
+class CommitHandler(BranchInfoHandler, TreeReadHandler, HashHandler):
     def handle(self, path: Path, message: str) -> None:
         self.index[Path('.')] = IndexEntry(Path('.'), datetime.now(), '', entry_type=IndexEntry.EntryType.DIRECTORY)
         root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True, only_staged=True))

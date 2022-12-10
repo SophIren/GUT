@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional, List, Iterator, Union
 
+from handlers.hash_handler import HashHandler
 from handlers.index_handler import IndexHandler
 from index_objects.blob_entry import BlobEntry
 from index_objects.casts import cast_index_entry_to_blob_entry, cast_index_entry_to_tree_entry
@@ -8,7 +9,7 @@ from index_objects.index_entry import IndexEntry
 from index_objects.tree_entry import TreeEntry
 
 
-class TreeReadHandler(IndexHandler):
+class TreeReadHandler(IndexHandler, HashHandler):
     def traverse_obj(
             self, obj_path: Path, only_current=False, only_staged=False
     ) -> Iterator[Union[BlobEntry, TreeEntry]]:
