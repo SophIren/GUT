@@ -21,19 +21,19 @@ class CommonHandler:
         self.gutignore = self.read_gutignore()
         self.branch_info = BranchInfoReader(self.settings.HEAD_FILE_PATH, self.settings.HEADS_DIR_PATH)
 
-    def traverse_obj(self, obj_path: Path, only_current=False) -> Iterator[Union[BlobEntry, TreeEntry]]:
+    def traverse_obj(
+            self, obj_path: Path, only_current=False, only_staged=False
+    ) -> Iterator[Union[BlobEntry, TreeEntry]]:
         if obj_path in self.gutignore:
             return
 
         is_dir = obj_path.is_dir()
         if not is_dir:
             dir_hash = self.hash_file(obj_path)
-            index_entry = self.index.get(obj_path,
-                                         IndexEntry(
-                                             file_path=obj_path,
-                                             timestamp=datetime.fromtimestamp(obj_path.lstat().st_mtime),
-                                             dir_hash=dir_hash,
-                                             entry_type=IndexEntry.EntryType.FILE))
+            index_entry = self.get_from_index(obj_path, dir_hash=dir_hash, entry_type=IndexEntry.EntryType.FILE,
+                                              create_new=not only_staged)
+            if index_entry is None:
+                return
             index_entry.dir_hash = dir_hash
             yield cast_index_entry_to_blob_entry(index_entry)
             return
@@ -41,22 +41,35 @@ class CommonHandler:
         child_entries: List[IndexEntry] = []
         for child_obj_path in obj_path.glob('*'):
             last_child_index_entry: Optional[IndexEntry] = None
-            for child_index_entry in self.traverse_obj(child_obj_path):
+            for child_index_entry in self.traverse_obj(child_obj_path, only_staged=only_staged):
                 last_child_index_entry = child_index_entry
                 if not only_current:
                     yield child_index_entry
             if last_child_index_entry is not None:
                 child_entries.append(last_child_index_entry)
         dir_hash = self.hash_content('\n'.join(child_entry.to_tree_content_line() for child_entry in child_entries))
-        index_entry = self.index.get(obj_path,
-                                     IndexEntry(
-                                         file_path=obj_path,
-                                         timestamp=datetime.fromtimestamp(obj_path.lstat().st_mtime),
-                                         dir_hash=dir_hash,
-                                         entry_type=IndexEntry.EntryType.DIRECTORY
-                                     ))
+        index_entry = self.get_from_index(obj_path, dir_hash=dir_hash, entry_type=IndexEntry.EntryType.DIRECTORY,
+                                          create_new=not only_staged)
+        if index_entry is None:
+            return
         index_entry.dir_hash = dir_hash
         yield cast_index_entry_to_tree_entry(index_entry, child_entries=child_entries)
+
+    def get_from_index(
+            self, obj_path: Path, dir_hash: Optional[str] = None, entry_type: Optional[IndexEntry] = None,
+            create_new: Optional[bool] = True
+    ) -> Optional[IndexEntry]:
+        if obj_path in self.index:
+            return self.index[obj_path]
+        if create_new:
+            if entry_type is None or dir_hash is None:
+                raise ValueError
+            return IndexEntry(
+                file_path=obj_path,
+                timestamp=datetime.fromtimestamp(obj_path.lstat().st_mtime),
+                dir_hash=dir_hash,
+                entry_type=entry_type
+            )
 
     def read_index(self) -> Dict[Path, IndexEntry]:
         with self.settings.INDEX_FILE_PATH.open() as index_file:

@@ -1,13 +1,16 @@
+from datetime import datetime
 from pathlib import Path
 
 from command_handlers.common import CommonHandler
+from index_objects.index_entry import IndexEntry
 
 
 class CommitHandler(CommonHandler):
     def handle(self, path: Path, message: str) -> None:
-        root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True))
-        self.write_object(root_dir_entry.dir_hash,
-                          self.serialize_tree_content(root_dir_entry, filter_func=lambda e: e.stage_hash in self.index))
+        self.index[Path('.')] = IndexEntry(Path('.'), datetime.now(), '', entry_type=IndexEntry.EntryType.DIRECTORY)
+        root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True, only_staged=True))
+        del self.index[Path('.')]
+        self.write_object(root_dir_entry.dir_hash, self.serialize_tree_content(root_dir_entry))
 
         for obj_entry in filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)):
             obj_entry.repo_hash = obj_entry.stage_hash
@@ -15,12 +18,12 @@ class CommitHandler(CommonHandler):
 
         parent_dir = path.parent
         while parent_dir in self.index:
-            parent_entry = next(self.traverse_obj(parent_dir, only_current=True))
+            parent_entry = next(self.traverse_obj(parent_dir, only_current=True, only_staged=True))
             self.index[parent_dir].repo_hash = parent_entry.stage_hash
             parent_dir = parent_dir.parent
 
         current_commit = self.branch_info.current_branch.read_text()
-        commit_content = self.get_commit_content(message, root_dir_entry.stage_hash, current_commit)
+        commit_content = self.get_commit_content(message, root_dir_entry.dir_hash, current_commit)
         commit_hash = self.hash_content(commit_content)
         self.write_head(commit_hash)
         self.write_object(commit_hash, commit_content)

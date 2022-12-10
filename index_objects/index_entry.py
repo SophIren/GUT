@@ -18,6 +18,9 @@ class IndexEntry:
         FILE = "blob"
         DIRECTORY = "tree"
 
+        def __str__(self) -> str:
+            return self.value
+
     def __init__(self, file_path: Path, timestamp: datetime,
                  dir_hash: str, entry_type: IndexEntry.EntryType,
                  repo_hash: str = '', stage_hash: str = ''):
