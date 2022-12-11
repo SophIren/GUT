@@ -43,6 +43,7 @@ class BranchHandler(TreeInfoHandler, BranchInfoHandler):
     def remove_and_change_diff(self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]) -> None:
         for cur_obj in current_objs:
             if cur_obj not in to_objs:
+                del self.index[cur_obj]
                 cur_obj.unlink()
                 continue
             if current_objs[cur_obj].repo_hash == to_objs[cur_obj].repo_hash:
@@ -56,11 +57,6 @@ class BranchHandler(TreeInfoHandler, BranchInfoHandler):
             if cur_obj not in current_objs:
                 self.write_obj_content_to_file(to_objs[cur_obj].repo_hash, current_objs[cur_obj].file_path)
                 self.index[cur_obj] = to_objs[cur_obj]
-
-    @classmethod
-    def write_obj_content_to_file(cls, obj_hash: str, file_path: Path) -> None:
-        content = cls.read_object(obj_hash)
-        file_path.write_text(content)
 
     @classmethod
     def get_commit_tree(cls, commit_path: Path) -> Dict[Path, IndexEntry]:

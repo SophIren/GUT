@@ -23,3 +23,8 @@ class ObjectHandler(GutSettings):
     @classmethod
     def read_object(cls, obj_hash: str) -> str:
         return (cls.OBJECTS_DIR_PATH / obj_hash).read_text()
+
+    @classmethod
+    def write_obj_content_to_file(cls, obj_hash: str, file_path: Path) -> None:
+        content = cls.read_object(obj_hash)
+        file_path.write_text(content)
