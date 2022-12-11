@@ -42,6 +42,7 @@ class ArgHandler:
     @staticmethod
     def branch(params: argparse.Namespace) -> None:
         BranchHandler().handle(
+            switch_to=params.checkout,
             create_name=params.create,
             rename_to_name=params.rename,
             delete_name=params.delete
@@ -81,6 +82,7 @@ commit_parser.add_argument("path", type=str)
 commit_parser.add_argument("message", type=str)
 
 branch_parser = subparsers.add_parser(Command.branch, help="gut branches")
+branch_parser.add_argument("checkout", type=str, nargs='?')
 branch_parser.add_argument("-c", "--create", type=str)
 branch_parser.add_argument("-d", "--delete", type=str)
 branch_parser.add_argument("-r", "--rename", type=str)

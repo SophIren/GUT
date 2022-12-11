@@ -17,9 +17,16 @@ class AddHandler(TreeInfoHandler):
                 self.write_object(obj_entry.stage_hash, obj_entry.serialize_content())
 
         parent_dir = path.parent
-        while parent_dir in self.index:
-            parent_entry = next(self.traverse_obj(parent_dir, only_current=True))
+        while parent_dir != Path('.'):
+            self.index[parent_dir] = IndexEntry(file_path=parent_dir, dir_hash='',
+                                                entry_type=IndexEntry.EntryType.DIRECTORY)
+            parent_entry = next(self.traverse_obj(parent_dir, only_current=True, only_staged=True))
+
             self.index[parent_dir].stage_hash = parent_entry.dir_hash
+            self.index[parent_dir].dir_hash = parent_entry.dir_hash
+            parent_entry.stage_hash = parent_entry.dir_hash
+
+            self.write_object(parent_entry.stage_hash, parent_entry.serialize_content())
             parent_dir = parent_dir.parent
 
         self.write_index()
