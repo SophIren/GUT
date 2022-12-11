@@ -41,26 +41,32 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
 
         self.write_index()
 
-    def remove_and_change_diff(self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]) -> None:
-        for cur_obj in current_objs:
-            if cur_obj not in to_objs:
-                del self.index[cur_obj]
-                if self.index[cur_obj].type == IndexEntry.EntryType.FILE:
-                    cur_obj.unlink()
-                elif self.index[cur_obj].type == IndexEntry.EntryType.DIRECTORY:
-                    shutil.rmtree(cur_obj)
+    def remove_and_change_diff(
+            self, current_entries: Dict[Path, IndexEntry], to_entries: Dict[Path, IndexEntry]
+    ) -> None:
+        for cur_entry in current_entries:
+            if cur_entry not in to_entries:
+                self.remove_entry(cur_entry)
                 continue
-            if current_objs[cur_obj].repo_hash == to_objs[cur_obj].repo_hash:
+            if current_entries[cur_entry].repo_hash == to_entries[cur_entry].repo_hash:
                 continue
-            if current_objs[cur_obj].type == IndexEntry.EntryType.FILE:
-                self.write_obj_content_to_file(to_objs[cur_obj].repo_hash, current_objs[cur_obj].file_path)
-            self.index[cur_obj] = to_objs[cur_obj]
+            if current_entries[cur_entry].type == IndexEntry.EntryType.FILE:
+                self.write_obj_content_to_file(to_entries[cur_entry].repo_hash, current_entries[cur_entry].file_path)
+            self.index[cur_entry] = to_entries[cur_entry]
 
-    def add_diff(self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]) -> None:
-        for cur_obj in to_objs:
-            if cur_obj not in current_objs:
-                self.write_obj_content_to_file(to_objs[cur_obj].repo_hash, current_objs[cur_obj].file_path)
-                self.index[cur_obj] = to_objs[cur_obj]
+    def add_diff(self, current_entries: Dict[Path, IndexEntry], to_entries: Dict[Path, IndexEntry]) -> None:
+        for cur_obj in to_entries:
+            if cur_obj not in current_entries:
+                self.write_obj_content_to_file(to_entries[cur_obj].repo_hash, current_entries[cur_obj].file_path)
+                self.index[cur_obj] = to_entries[cur_obj]
+
+    def remove_entry(self, entry_path: Path) -> None:
+        if self.index[entry_path].type == IndexEntry.EntryType.FILE:
+            if entry_path.exists():
+                entry_path.unlink()
+        elif self.index[entry_path].type == IndexEntry.EntryType.DIRECTORY:
+            shutil.rmtree(entry_path)
+        del self.index[entry_path]
 
     def create_branch(self, branch_path: Path) -> None:
         branch_path.write_text(self.current_commit)
