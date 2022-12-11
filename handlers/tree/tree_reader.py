@@ -59,7 +59,6 @@ class TreeReadHandler(IndexHandler, ObjectHandler):
                     for obj in cls.traverse_tree(obj_hash):
                         yield obj
 
-
     def update_index(self):
         for _ in self.traverse_obj(Path('.')):
             pass

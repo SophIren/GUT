@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Callable
 
 from handlers.commands import InitHandler, AddHandler, StatusHandler, CommitHandler, BranchHandler
+from handlers.commands.reset import ResetHandler
 
 
 class Command(str, Enum):
@@ -14,7 +15,6 @@ class Command(str, Enum):
     commit = "commit"
     reset = "reset"
     branch = "branch"
-    checkout = "checkout"
 
     def __str__(self) -> str:
         return self.value
@@ -46,8 +46,8 @@ class ArgHandler:
         )
 
     @staticmethod
-    def checkout():
-        pass
+    def reset(params: argparse.Namespace) -> None:
+        ResetHandler().handle(to_commit=params.commit)
 
 
 command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {
@@ -56,7 +56,7 @@ command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {
     Command.status: ArgHandler.status,
     Command.commit: ArgHandler.commit,
     Command.branch: ArgHandler.branch,
-    Command.checkout: ArgHandler.checkout,
+    Command.reset: ArgHandler.reset,
 }
 
 parser = argparse.ArgumentParser(description='GUT VCS')
@@ -77,6 +77,9 @@ branch_parser = subparsers.add_parser(Command.branch, help="gut branches")
 branch_parser.add_argument("-c", "--create", type=str)
 branch_parser.add_argument("-d", "--delete", type=str)
 branch_parser.add_argument("-r", "--rename", type=str)
+
+reset_parser = subparsers.add_parser(Command.reset, help="reset gutly")
+reset_parser.add_argument("commit", type=str)
 
 args = parser.parse_args()
 command = Command(args.command_name)
