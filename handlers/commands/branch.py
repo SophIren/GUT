@@ -1,10 +1,16 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 from handlers.branch_info_handler import BranchInfoHandler
+from handlers.tree.tree_info import TreeInfoHandler
+from index_objects.index_entry import IndexEntry
 
 
-class BranchHandler(BranchInfoHandler):
+class BranchHandler(TreeInfoHandler, BranchInfoHandler):
+    def __init__(self):
+        TreeInfoHandler.__init__(self)
+        BranchInfoHandler.__init__(self)
+
     def handle(
             self, switch_to: Optional[str] = None,
             create_name: Optional[str] = None,
@@ -24,7 +30,47 @@ class BranchHandler(BranchInfoHandler):
             self.print_branches()
 
     def checkout(self, branch_path: Path) -> None:
-        pass
+        to_commit = branch_path.read_text()
+        current_objs = self.get_commit_tree(self.OBJECTS_DIR_PATH / self.current_commit)
+        to_objs = self.get_commit_tree(self.OBJECTS_DIR_PATH / to_commit)
+        self.remove_and_change_diff(current_objs, to_objs)
+        self.add_diff(current_objs, to_objs)
+
+        self.HEAD_FILE_PATH.write_text(str(branch_path))
+
+        self.write_index()
+
+    def remove_and_change_diff(self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]) -> None:
+        for cur_obj in current_objs:
+            if cur_obj not in to_objs:
+                cur_obj.unlink()
+                continue
+            if current_objs[cur_obj].repo_hash == to_objs[cur_obj].repo_hash:
+                continue
+            if current_objs[cur_obj].type == IndexEntry.EntryType.FILE:
+                self.write_obj_content_to_file(to_objs[cur_obj].repo_hash, current_objs[cur_obj].file_path)
+            self.index[cur_obj] = to_objs[cur_obj]
+
+    def add_diff(self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]) -> None:
+        for cur_obj in to_objs:
+            if cur_obj not in current_objs:
+                self.write_obj_content_to_file(to_objs[cur_obj].repo_hash, current_objs[cur_obj].file_path)
+                self.index[cur_obj] = to_objs[cur_obj]
+
+    @classmethod
+    def write_obj_content_to_file(cls, obj_hash: str, file_path: Path) -> None:
+        content = cls.read_object(obj_hash)
+        file_path.write_text(content)
+
+    @classmethod
+    def get_commit_tree(cls, commit_path: Path) -> Dict[Path, IndexEntry]:
+        with commit_path.open() as commit_file:
+            _ = commit_file.readline()
+            _, tree_hash = commit_file.readline().split()
+        res = {}
+        for obj_entry in cls.traverse_tree(tree_hash):
+            res[Path(obj_entry.file_path)] = obj_entry
+        return res
 
     def create_branch(self, branch_path: Path) -> None:
         branch_path.write_text(self.current_commit)

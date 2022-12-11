@@ -13,6 +13,4 @@ class GutSettings:
 
     DEFAULT_HEAD_FILE_PATH: Path = HEADS_DIR_PATH / "master"
 
-    DETACHED_BRANCH_PATH: Path = HEADS_DIR_PATH / "detached"
-
     INDEX_FIELD_DELIMITER: str = ':'
