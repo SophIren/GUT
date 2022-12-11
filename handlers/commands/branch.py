@@ -2,6 +2,8 @@ import shutil
 from pathlib import Path
 from typing import Optional, Dict
 
+from colorama import Fore, Style
+
 from handlers.branch_info_handler import BranchInfoHandler
 from handlers.commit_info_handler import CommitInfoHandler
 from index_objects.index_entry import IndexEntry
@@ -91,6 +93,6 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
         print()
         for branch in self.HEADS_DIR_PATH.glob('*'):
             if branch == self.current_branch:
-                print(f"{branch.name} <-")
+                print(f"{Fore.GREEN}{branch.name}  <<----{Style.RESET_ALL}")
             else:
                 print(branch.name)
