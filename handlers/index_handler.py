@@ -13,7 +13,8 @@ class IndexHandler(GutignoreHandler):
         self.index = self.read_index()
 
     def get_from_index(
-            self, obj_path: Path, dir_hash: Optional[str] = None, entry_type: Optional[IndexEntry.EntryType] = None,
+            self, obj_path: Path, dir_hash: Optional[str] = None,
+            entry_type: Optional[IndexEntry.EntryType] = None,
             create_new: Optional[bool] = True
     ) -> Optional[IndexEntry]:
         if obj_path in self.index:

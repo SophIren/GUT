@@ -1,23 +1,13 @@
-from enum import Enum
 from pathlib import Path
 from typing import List
+from colorama import Fore, Style
 
 from handlers.branch_info_handler import BranchInfoHandler
 from handlers.tree.tree_reader import TreeReadHandler
+from index_objects.index_entry import IndexEntry
 
 
 class StatusHandler(BranchInfoHandler, TreeReadHandler):
-    class Colors(str, Enum):
-        HEADER = '\033[95m'
-        OKBLUE = '\033[94m'
-        OKCYAN = '\033[96m'
-        OKGREEN = '\033[92m'
-        WARNING = '\033[93m'
-        FAIL = '\033[91m'
-        ENDC = '\033[0m'
-        BOLD = '\033[1m'
-        UNDERLINE = '\033[4m'
-
     def handle(self) -> None:
         excluded: List[str] = []
         modified: List[str] = []
@@ -30,11 +20,13 @@ class StatusHandler(BranchInfoHandler, TreeReadHandler):
             if obj_entry.file_path not in self.index:
                 excluded.append(str(obj_entry.file_path))
                 continue
+            if obj_entry.type == IndexEntry.EntryType.DIRECTORY:
+                continue
 
             index_entry = self.index[obj_entry.file_path]
             if index_entry.stage_hash != obj_entry.dir_hash:
                 modified.append(str(obj_entry.file_path))
-            elif index_entry.repo_hash != obj_entry.dir_hash and index_entry.type == index_entry.EntryType.FILE:
+            elif index_entry.repo_hash != obj_entry.dir_hash:
                 gut.append(str(obj_entry.file_path))
 
         self.write_index()
@@ -45,13 +37,13 @@ class StatusHandler(BranchInfoHandler, TreeReadHandler):
         print(f"\nOn branch {current_branch}\n")
 
         if excluded:
-            print(f"\n{cls.Colors.FAIL}Very not gut!!!{cls.Colors.ENDC}\nAdd to index with gut add")
-            print(f"{cls.Colors.FAIL}    " + '\n    '.join(excluded) + cls.Colors.ENDC)
+            print(f"\n{Fore.RED}Very not gut!!!{Style.RESET_ALL}\nAdd to index with gut add")
+            print(f"{Fore.RED}    " + '\n    '.join(excluded) + Style.RESET_ALL)
 
         if modified:
-            print(f"\n{cls.Colors.WARNING}Not gut!!! These are modified.{cls.Colors.ENDC}\nAdd to index with gut add")
-            print(f"{cls.Colors.WARNING}    " + '\n    '.join(modified) + cls.Colors.ENDC)
+            print(f"\n{Fore.LIGHTRED_EX}Not gut!!! These are modified.{Style.RESET_ALL}\nAdd to index with gut add")
+            print(f"{Fore.LIGHTRED_EX}    " + '\n    '.join(modified) + Style.RESET_ALL)
 
         if gut:
-            print(f"\n{cls.Colors.OKGREEN}Very very gut ^_^")
-            print("    " + '\n    '.join(gut) + cls.Colors.ENDC)
+            print(f"\n{Fore.GREEN}Very very gut ^_^")
+            print("    " + '\n    '.join(gut) + Style.RESET_ALL)

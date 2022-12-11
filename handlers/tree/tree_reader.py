@@ -11,7 +11,9 @@ from index_objects.tree_entry import TreeEntry
 
 class TreeReadHandler(IndexHandler, HashHandler):
     def traverse_obj(
-            self, obj_path: Path, only_current=False, only_staged=False
+            self, obj_path: Path,
+            only_current: bool = False,
+            only_staged: bool = False,
     ) -> Iterator[Union[BlobEntry, TreeEntry]]:
         if obj_path in self.gutignore:
             return
