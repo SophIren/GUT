@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import Optional, Dict
 
@@ -44,7 +45,10 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
         for cur_obj in current_objs:
             if cur_obj not in to_objs:
                 del self.index[cur_obj]
-                cur_obj.unlink()
+                if self.index[cur_obj].type == IndexEntry.EntryType.FILE:
+                    cur_obj.unlink()
+                elif self.index[cur_obj].type == IndexEntry.EntryType.DIRECTORY:
+                    shutil.rmtree(cur_obj)
                 continue
             if current_objs[cur_obj].repo_hash == to_objs[cur_obj].repo_hash:
                 continue
