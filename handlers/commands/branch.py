@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional, Dict
 
 from handlers.branch_info_handler import BranchInfoHandler
-from handlers.commit_handler import CommitInfoHandler
+from handlers.commit_info_handler import CommitInfoHandler
 from index_objects.index_entry import IndexEntry
 
 
