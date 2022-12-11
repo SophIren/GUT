@@ -2,16 +2,20 @@ from pathlib import Path
 from typing import Dict
 
 from handlers.branch_info_handler import BranchInfoHandler
-from handlers.tree.tree_info import TreeInfoHandler
+from handlers.commit_handler import CommitInfoHandler
 from index_objects.index_entry import IndexEntry
 
 
-class ResetHandler(TreeInfoHandler, BranchInfoHandler):
+class ResetHandler(CommitInfoHandler, BranchInfoHandler):
     def __init__(self):
-        TreeInfoHandler.__init__(self)
+        CommitInfoHandler.__init__(self)
         BranchInfoHandler.__init__(self)
 
     def handle(self, to_commit: str):
+        current_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / self.current_commit)
+        to_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / to_commit)
+        self.remove_and_change_diff_index(current_objs, to_objs)
+        self.add_diff_index(current_objs, to_objs)
         (self.HEADS_DIR_PATH / self.current_commit).write_text(to_commit)
 
     def remove_and_change_diff_index(

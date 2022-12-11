@@ -2,13 +2,13 @@ from pathlib import Path
 from typing import Optional, Dict
 
 from handlers.branch_info_handler import BranchInfoHandler
-from handlers.tree.tree_info import TreeInfoHandler
+from handlers.commit_handler import CommitInfoHandler
 from index_objects.index_entry import IndexEntry
 
 
-class BranchHandler(TreeInfoHandler, BranchInfoHandler):
+class BranchHandler(CommitInfoHandler, BranchInfoHandler):
     def __init__(self):
-        TreeInfoHandler.__init__(self)
+        CommitInfoHandler.__init__(self)
         BranchInfoHandler.__init__(self)
 
     def handle(
@@ -31,8 +31,8 @@ class BranchHandler(TreeInfoHandler, BranchInfoHandler):
 
     def checkout(self, branch_path: Path) -> None:
         to_commit = branch_path.read_text()
-        current_objs = self.get_commit_tree(self.OBJECTS_DIR_PATH / self.current_commit)
-        to_objs = self.get_commit_tree(self.OBJECTS_DIR_PATH / to_commit)
+        current_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / self.current_commit)
+        to_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / to_commit)
         self.remove_and_change_diff(current_objs, to_objs)
         self.add_diff(current_objs, to_objs)
 
@@ -57,16 +57,6 @@ class BranchHandler(TreeInfoHandler, BranchInfoHandler):
             if cur_obj not in current_objs:
                 self.write_obj_content_to_file(to_objs[cur_obj].repo_hash, current_objs[cur_obj].file_path)
                 self.index[cur_obj] = to_objs[cur_obj]
-
-    @classmethod
-    def get_commit_tree(cls, commit_path: Path) -> Dict[Path, IndexEntry]:
-        with commit_path.open() as commit_file:
-            _ = commit_file.readline()
-            _, tree_hash = commit_file.readline().split()
-        res = {}
-        for obj_entry in cls.traverse_tree(tree_hash):
-            res[Path(obj_entry.file_path)] = obj_entry
-        return res
 
     def create_branch(self, branch_path: Path) -> None:
         branch_path.write_text(self.current_commit)
