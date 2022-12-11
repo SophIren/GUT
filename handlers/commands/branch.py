@@ -57,7 +57,10 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
     def add_diff(self, current_entries: Dict[Path, IndexEntry], to_entries: Dict[Path, IndexEntry]) -> None:
         for cur_obj in to_entries:
             if cur_obj not in current_entries:
-                self.write_obj_content_to_file(to_entries[cur_obj].repo_hash, current_entries[cur_obj].file_path)
+                if to_entries[cur_obj].type == IndexEntry.EntryType.FILE:
+                    self.write_obj_content_to_file(to_entries[cur_obj].repo_hash, cur_obj)
+                elif to_entries[cur_obj].type == IndexEntry.EntryType.DIRECTORY:
+                    cur_obj.mkdir(exist_ok=True)
                 self.index[cur_obj] = to_entries[cur_obj]
 
     def remove_entry(self, entry_path: Path) -> None:
@@ -69,6 +72,8 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
         del self.index[entry_path]
 
     def create_branch(self, branch_path: Path) -> None:
+        if not self.current_commit:
+            raise ValueError("No commit has been made")
         branch_path.write_text(self.current_commit)
 
     def delete_branch(self, branch_path: Path) -> None:
