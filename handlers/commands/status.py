@@ -3,11 +3,11 @@ from typing import List
 from colorama import Fore, Style
 
 from handlers.branch_info_handler import BranchInfoHandler
-from handlers.tree.tree_reader import TreeReadHandler
+from handlers.tree.tree_info import TreeInfoHandler
 from index_objects.index_entry import IndexEntry
 
 
-class StatusHandler(BranchInfoHandler, TreeReadHandler):
+class StatusHandler(BranchInfoHandler, TreeInfoHandler):
     def handle(self) -> None:
         excluded: List[str] = []
         modified: List[str] = []

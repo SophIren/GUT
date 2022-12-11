@@ -9,7 +9,7 @@ from index_objects.index_entry import IndexEntry
 from index_objects.tree_entry import TreeEntry
 
 
-class TreeReadHandler(IndexHandler, ObjectHandler):
+class TreeInfoHandler(IndexHandler, ObjectHandler):
     def traverse_obj(
             self, obj_path: Path,
             only_current: bool = False,

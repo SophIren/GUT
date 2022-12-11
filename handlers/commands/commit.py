@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from handlers.branch_info_handler import BranchInfoHandler
-from handlers.tree.tree_reader import TreeReadHandler
+from handlers.tree.tree_info import TreeInfoHandler
 from index_objects.index_entry import IndexEntry
 
 
-class CommitHandler(BranchInfoHandler, TreeReadHandler):
+class CommitHandler(BranchInfoHandler, TreeInfoHandler):
     def handle(self, path: Path, message: str) -> None:
         self.index[Path('.')] = IndexEntry(file_path=Path('.'), dir_hash='', entry_type=IndexEntry.EntryType.DIRECTORY)
         root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True, only_staged=True))
