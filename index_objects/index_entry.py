@@ -21,8 +21,9 @@ class IndexEntry:
         def __str__(self) -> str:
             return self.value
 
-    def __init__(self, file_path: Path, timestamp: datetime,
+    def __init__(self, file_path: Path,
                  dir_hash: str, entry_type: IndexEntry.EntryType,
+                 timestamp: datetime = datetime.now(),
                  repo_hash: str = '', stage_hash: str = ''):
         self.file_path = file_path
         self.timestamp = timestamp

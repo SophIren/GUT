@@ -1,15 +1,16 @@
 from pathlib import Path
 from typing import Tuple, Generator
 
-from handlers.index_handler import IndexHandler
+from handlers.tree.tree_reader import TreeReadHandler
 from index_objects.index_entry import IndexEntry
 
 
-class TreeWriteHandler(IndexHandler):
+class TreeWriteHandler(TreeReadHandler):
     def drop_unchanged_commited(self, tree_obj_path: Path) -> None:
+        self.update_index()  # Todo: Поставить это вместо traverse_obj в add и status
         for obj_type, obj_hash, obj_path in TreeWriteHandler.parse_tree(tree_obj_path):
             index_entry = self.index[obj_path]
-            if index_entry:
+            if index_entry.dir_hash == index_entry.repo_hash:
                 pass
 
     @staticmethod

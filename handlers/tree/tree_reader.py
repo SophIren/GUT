@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional, List, Iterator, Union
 
-from handlers.hash_handler import HashHandler
+from handlers.hash_handler import ObjectHandler
 from handlers.index_handler import IndexHandler
 from index_objects.blob_entry import BlobEntry
 from index_objects.casts import cast_index_entry_to_blob_entry, cast_index_entry_to_tree_entry
@@ -9,12 +9,12 @@ from index_objects.index_entry import IndexEntry
 from index_objects.tree_entry import TreeEntry
 
 
-class TreeReadHandler(IndexHandler, HashHandler):
+class TreeReadHandler(IndexHandler, ObjectHandler):
     def traverse_obj(
             self, obj_path: Path,
             only_current: bool = False,
             only_staged: bool = False,
-    ) -> Iterator[Union[BlobEntry, TreeEntry]]:
+    ) -> Iterator[Union[BlobEntry, TreeEntry]]:  # ToDo: Переделать после переноса на update_index
         if obj_path in self.gutignore:
             return
 
@@ -45,3 +45,22 @@ class TreeReadHandler(IndexHandler, HashHandler):
             return
         index_entry.dir_hash = dir_hash
         yield cast_index_entry_to_tree_entry(index_entry, child_entries=child_entries)
+
+    @classmethod
+    def traverse_tree(cls, tree_hash: str) -> Iterator[IndexEntry]:
+        with (cls.OBJECTS_DIR_PATH / tree_hash).open() as tree_file:
+            for line in tree_file:
+                obj_type_str, obj_hash, obj_path = line.split()
+                obj_type = IndexEntry.EntryType(obj_type_str)
+                yield IndexEntry(entry_type=IndexEntry.EntryType(obj_type_str),
+                                 dir_hash=obj_hash, repo_hash=obj_hash, stage_hash=obj_hash,
+                                 file_path=Path(obj_path))
+                if obj_type == IndexEntry.EntryType.DIRECTORY:
+                    for obj in cls.traverse_tree(obj_hash):
+                        yield obj
+
+
+    def update_index(self):
+        for _ in self.traverse_obj(Path('.')):
+            pass
+        self.write_index()

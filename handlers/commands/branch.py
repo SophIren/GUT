@@ -27,8 +27,7 @@ class BranchHandler(BranchInfoHandler):
         pass
 
     def create_branch(self, branch_path: Path) -> None:
-        current_commit = self.current_branch.read_text()
-        branch_path.write_text(current_commit)
+        branch_path.write_text(self.current_commit)
 
     def delete_branch(self, branch_path: Path) -> None:
         if branch_path == self.current_branch:

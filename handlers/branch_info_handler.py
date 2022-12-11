@@ -23,3 +23,7 @@ class BranchInfoHandler(GutSettings):
 
         self._current_branch = branch_path
         self.HEADS_DIR_PATH.write_text(str(self._current_branch))
+
+    @property
+    def current_commit(self) -> str:
+        return self.current_branch.read_text()

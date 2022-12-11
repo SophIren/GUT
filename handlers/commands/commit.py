@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 
 from handlers.branch_info_handler import BranchInfoHandler
@@ -8,7 +7,7 @@ from index_objects.index_entry import IndexEntry
 
 class CommitHandler(BranchInfoHandler, TreeReadHandler):
     def handle(self, path: Path, message: str) -> None:
-        self.index[Path('.')] = IndexEntry(Path('.'), datetime.now(), '', entry_type=IndexEntry.EntryType.DIRECTORY)
+        self.index[Path('.')] = IndexEntry(file_path=Path('.'), dir_hash='', entry_type=IndexEntry.EntryType.DIRECTORY)
         root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True, only_staged=True))
         del self.index[Path('.')]
         self.write_object(root_dir_entry.dir_hash, root_dir_entry.serialize_content())
@@ -23,8 +22,7 @@ class CommitHandler(BranchInfoHandler, TreeReadHandler):
             self.index[parent_dir].repo_hash = parent_entry.stage_hash
             parent_dir = parent_dir.parent
 
-        current_commit = self.current_branch.read_text()
-        commit_content = self.get_commit_content(message, root_dir_entry.dir_hash, current_commit)
+        commit_content = self.get_commit_content(message, root_dir_entry.dir_hash, self.current_commit)
         commit_hash = self.hash_content(commit_content)
         self.write_head(commit_hash)
         self.write_object(commit_hash, commit_content)

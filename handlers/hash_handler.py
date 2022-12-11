@@ -5,7 +5,7 @@ from gut_settings import GutSettings
 from path_extensions import apply_func_to_batches
 
 
-class HashHandler(GutSettings):
+class ObjectHandler(GutSettings):
     @classmethod
     def hash_file(cls, file_path: Path) -> str:
         sha1 = hashlib.sha1()
@@ -19,3 +19,7 @@ class HashHandler(GutSettings):
     @classmethod
     def write_object(cls, obj_hash: str, content: str) -> None:
         (cls.OBJECTS_DIR_PATH / obj_hash).write_text(content)
+
+    @classmethod
+    def read_object(cls, obj_hash: str) -> str:
+        return (cls.OBJECTS_DIR_PATH / obj_hash).read_text()
