@@ -16,4 +16,4 @@ CLI на argparse => введи **_-h_** или **_--help_**
 - **_status_** - Хороший статус
 - **_reset_** - Soft reset (very gut)
 - **_log_** - Хорошая история коммитов
-###GUT luck! :nerd_face:
+### GUT luck! :nerd_face:
