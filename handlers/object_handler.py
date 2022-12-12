@@ -17,12 +17,20 @@ class ObjectHandler(GutSettings):
         return hashlib.sha1(content.encode()).hexdigest()
 
     @classmethod
+    def get_object_path(cls, obj_hash: str) -> Path:
+        return cls.OBJECTS_DIR_PATH / obj_hash
+
+    @classmethod
     def write_object(cls, obj_hash: str, content: str) -> None:
-        (cls.OBJECTS_DIR_PATH / obj_hash).write_text(content)
+        cls.get_object_path(obj_hash).write_text(content)
+
+    @classmethod
+    def delete_object(cls, obj_hash: str) -> None:
+        cls.get_object_path(obj_hash).unlink()
 
     @classmethod
     def read_object(cls, obj_hash: str) -> str:
-        return (cls.OBJECTS_DIR_PATH / obj_hash).read_text()
+        return cls.get_object_path(obj_hash).read_text()
 
     @classmethod
     def write_obj_content_to_file(cls, obj_hash: str, file_path: Path) -> None:

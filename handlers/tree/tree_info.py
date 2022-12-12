@@ -50,7 +50,7 @@ class TreeInfoHandler(IndexHandler, ObjectHandler):
 
     @classmethod
     def traverse_tree(cls, tree_hash: str) -> Iterator[IndexEntry]:
-        with (cls.OBJECTS_DIR_PATH / tree_hash).open() as tree_file:
+        with cls.get_object_path(tree_hash).open() as tree_file:
             for line in tree_file:
                 obj_type_str, obj_hash, obj_path = line.split()
                 obj_type = IndexEntry.EntryType(obj_type_str)
