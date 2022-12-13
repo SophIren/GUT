@@ -7,9 +7,9 @@ from index_objects.index_entry import IndexEntry
 
 class CommitHandler(BranchInfoHandler, TreeInfoHandler):
     def handle(self, path: Path, message: str) -> None:
-        self.index[Path('.')] = IndexEntry(file_path=Path('.'), dir_hash='', entry_type=IndexEntry.EntryType.DIRECTORY)
-        root_dir_entry = next(self.traverse_obj(Path('.'), only_current=True, only_staged=True))
-        del self.index[Path('.')]
+        self.index[self.GUT_DIR_PATH.parent] = IndexEntry(file_path=self.GUT_DIR_PATH.parent, dir_hash='', entry_type=IndexEntry.EntryType.DIRECTORY)
+        root_dir_entry = next(self.traverse_obj(self.GUT_DIR_PATH.parent, only_current=True, only_staged=True))
+        del self.index[self.GUT_DIR_PATH.parent]
         self.write_object(root_dir_entry.dir_hash, root_dir_entry.serialize_content())
 
         for obj_entry in filter(lambda com_obj: com_obj.file_path in self.index, self.traverse_obj(path)):
@@ -30,11 +30,11 @@ class CommitHandler(BranchInfoHandler, TreeInfoHandler):
         self.write_index()
 
     def read_head(self) -> str:
-        return self.HEAD_FILE_PATH.read_text()
+        return self.head_file_path.read_text()
 
     def write_head(self, head_hash: str) -> None:
         self.current_branch.write_text(head_hash)
 
-    @classmethod
-    def get_commit_content(cls, message: str, root_dir_hash: str, parent_hash: str) -> str:
+    @staticmethod
+    def get_commit_content(message: str, root_dir_hash: str, parent_hash: str) -> str:
         return f"parent {parent_hash}\ntree {root_dir_hash}\n\n{message}"

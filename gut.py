@@ -7,7 +7,7 @@ from typing import Dict, Callable
 from handlers.commands import InitHandler, AddHandler, StatusHandler, CommitHandler, BranchHandler
 from handlers.commands.log import LogHandler
 from handlers.commands.reset import ResetHandler
-from handlers.commands.squash import Squash
+from handlers.commands.squash import SquashHandler
 
 
 class Command(str, Enum):
@@ -27,7 +27,7 @@ class Command(str, Enum):
 class ArgHandler:
     @staticmethod
     def init(params: argparse.Namespace) -> None:
-        InitHandler.handle()
+        InitHandler().handle()
 
     @staticmethod
     def add(params: argparse.Namespace) -> None:
@@ -60,7 +60,7 @@ class ArgHandler:
 
     @staticmethod
     def squash(params: argparse.Namespace) -> None:
-        Squash().handle(params.lower, params.upper)
+        SquashHandler().handle(params.lower, params.upper)
 
 
 command_to_handler: Dict[Command, Callable[[argparse.Namespace], None]] = {

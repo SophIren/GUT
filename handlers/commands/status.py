@@ -12,10 +12,10 @@ class StatusHandler(BranchInfoHandler, TreeInfoHandler):
         excluded: List[str] = []
         modified: List[str] = []
         gut: List[str] = []
-        for obj_entry in self.traverse_obj(Path('.')):
-            if obj_entry.file_path == Path('.'):
+        for obj_entry in self.traverse_obj(self.GUT_DIR_PATH.parent):
+            if obj_entry.file_path == self.GUT_DIR_PATH.parent:
                 continue
-            if obj_entry.file_path.parent not in self.index and obj_entry.file_path.parent != Path('.'):
+            if obj_entry.file_path.parent not in self.index and obj_entry.file_path.parent != self.GUT_DIR_PATH.parent:
                 continue
             if obj_entry.file_path not in self.index:
                 excluded.append(str(obj_entry.file_path))
@@ -32,8 +32,8 @@ class StatusHandler(BranchInfoHandler, TreeInfoHandler):
         self.write_index()
         self.pprint(excluded, modified, gut, self.current_branch.name)
 
-    @classmethod
-    def pprint(cls, excluded: List[str], modified: List[str], gut: List[str], current_branch: str):
+    @staticmethod
+    def pprint(excluded: List[str], modified: List[str], gut: List[str], current_branch: str):
         print(f"\nOn branch {current_branch}\n")
 
         if excluded:

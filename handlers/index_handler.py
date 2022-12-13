@@ -30,7 +30,7 @@ class IndexHandler(GutignoreHandler):
             )
 
     def read_index(self) -> Dict[Path, IndexEntry]:
-        with self.INDEX_FILE_PATH.open() as index_file:
+        with self.index_file_path.open() as index_file:
             csv_reader = csv.DictReader(index_file, delimiter=self.INDEX_FIELD_DELIMITER)
             index = {}
             for row in csv_reader:
@@ -45,7 +45,7 @@ class IndexHandler(GutignoreHandler):
         return index
 
     def write_index(self) -> None:
-        with self.INDEX_FILE_PATH.open(mode='w') as index_file:
+        with self.index_file_path.open(mode='w') as index_file:
             csv_writer = csv.DictWriter(index_file, delimiter=self.INDEX_FIELD_DELIMITER,
                                         fieldnames=list(IndexEntry.FieldName))
             csv_writer.writeheader()

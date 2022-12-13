@@ -1,14 +1,13 @@
-from handlers.index_handler import IndexHandler
+from gut_settings import GutSettings
 
 
-class InitHandler(IndexHandler):
-    @classmethod
-    def handle(cls) -> None:
-        cls.OBJECTS_DIR_PATH.mkdir(exist_ok=True, parents=True)
-        cls.HEADS_DIR_PATH.mkdir(exist_ok=True, parents=True)
+class InitHandler(GutSettings):
+    def handle(self) -> None:
+        self.objects_dir_path.mkdir(exist_ok=True, parents=True)
+        self.heads_dir_path.mkdir(exist_ok=True, parents=True)
 
-        cls.INDEX_FILE_PATH.touch(exist_ok=True)
-        cls.HEAD_FILE_PATH.touch(exist_ok=True)
+        self.index_file_path.touch(exist_ok=True)
+        self.head_file_path.touch(exist_ok=True)
 
-        cls.DEFAULT_HEAD_FILE_PATH.touch(exist_ok=True)
-        cls.HEAD_FILE_PATH.write_text(str(cls.DEFAULT_HEAD_FILE_PATH))
+        self.default_head_file_path.touch(exist_ok=True)
+        self.head_file_path.write_text(str(self.default_head_file_path))

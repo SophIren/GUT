@@ -48,9 +48,8 @@ class TreeInfoHandler(IndexHandler, ObjectHandler):
         index_entry.dir_hash = dir_hash
         yield cast_index_entry_to_tree_entry(index_entry, child_entries=child_entries)
 
-    @classmethod
-    def traverse_tree(cls, tree_hash: str) -> Iterator[IndexEntry]:
-        with cls.get_object_path(tree_hash).open() as tree_file:
+    def traverse_tree(self, tree_hash: str) -> Iterator[IndexEntry]:
+        with self.get_object_path(tree_hash).open() as tree_file:
             for line in tree_file:
                 obj_type_str, obj_hash, obj_path = line.split()
                 obj_type = IndexEntry.EntryType(obj_type_str)
@@ -58,10 +57,10 @@ class TreeInfoHandler(IndexHandler, ObjectHandler):
                                  dir_hash=obj_hash, repo_hash=obj_hash, stage_hash=obj_hash,
                                  file_path=Path(obj_path))
                 if obj_type == IndexEntry.EntryType.DIRECTORY:
-                    for obj in cls.traverse_tree(obj_hash):
+                    for obj in self.traverse_tree(obj_hash):
                         yield obj
 
     def update_index(self):
-        for _ in self.traverse_obj(Path('.')):
+        for _ in self.traverse_obj(self.GUT_DIR_PATH.parent):
             pass
         self.write_index()

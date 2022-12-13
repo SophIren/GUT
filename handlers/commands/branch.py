@@ -34,12 +34,12 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
 
     def checkout(self, branch_path: Path) -> None:
         to_commit = branch_path.read_text()
-        current_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / self.current_commit)
-        to_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / to_commit)
+        current_objs = self.get_objects_from_commit(self.objects_dir_path / self.current_commit)
+        to_objs = self.get_objects_from_commit(self.objects_dir_path / to_commit)
         self.remove_and_change_diff(current_objs, to_objs)
         self.add_diff(current_objs, to_objs)
 
-        self.HEAD_FILE_PATH.write_text(str(branch_path))
+        self.head_file_path.write_text(str(branch_path))
 
         self.write_index()
 
@@ -87,11 +87,11 @@ class BranchHandler(CommitInfoHandler, BranchInfoHandler):
 
     def rename_branch(self, branch_path: Path, new_branch_path: Path) -> None:
         new_branch_path = branch_path.rename(new_branch_path)
-        self.HEAD_FILE_PATH.write_text(str(new_branch_path))
+        self.head_file_path.write_text(str(new_branch_path))
 
     def print_branches(self) -> None:
         print()
-        for branch in self.HEADS_DIR_PATH.glob('*'):
+        for branch in self.heads_dir_path.glob('*'):
             if branch == self.current_branch:
                 print(f"{Fore.GREEN}{branch.name}  <<----{Style.RESET_ALL}")
             else:

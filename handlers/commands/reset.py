@@ -12,8 +12,8 @@ class ResetHandler(CommitInfoHandler, BranchInfoHandler):
         BranchInfoHandler.__init__(self)
 
     def handle(self, to_commit: str):
-        current_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / self.current_commit)
-        to_objs = self.get_objects_from_commit(self.OBJECTS_DIR_PATH / to_commit)
+        current_objs = self.get_objects_from_commit(self.objects_dir_path / self.current_commit)
+        to_objs = self.get_objects_from_commit(self.objects_dir_path / to_commit)
         self.remove_and_change_diff_index(current_objs, to_objs)
         self.add_diff_index(current_objs, to_objs)
         self.write_index()

@@ -6,33 +6,28 @@ from path_extensions import apply_func_to_batches
 
 
 class ObjectHandler(GutSettings):
-    @classmethod
-    def hash_file(cls, file_path: Path) -> str:
+    @staticmethod
+    def hash_file(file_path: Path) -> str:
         sha1 = hashlib.sha1()
         apply_func_to_batches(file_path, lambda data: sha1.update(data))
         return sha1.hexdigest()
 
-    @classmethod
-    def hash_content(cls, content: str) -> str:
+    @staticmethod
+    def hash_content(content: str) -> str:
         return hashlib.sha1(content.encode()).hexdigest()
 
-    @classmethod
-    def get_object_path(cls, obj_hash: str) -> Path:
-        return cls.OBJECTS_DIR_PATH / obj_hash
+    def get_object_path(self, obj_hash: str) -> Path:
+        return self.objects_dir_path / obj_hash
 
-    @classmethod
-    def write_object(cls, obj_hash: str, content: str) -> None:
-        cls.get_object_path(obj_hash).write_text(content)
+    def write_object(self, obj_hash: str, content: str) -> None:
+        self.get_object_path(obj_hash).write_text(content)
 
-    @classmethod
-    def delete_object(cls, obj_hash: str) -> None:
-        cls.get_object_path(obj_hash).unlink()
+    def delete_object(self, obj_hash: str) -> None:
+        self.get_object_path(obj_hash).unlink()
 
-    @classmethod
-    def read_object(cls, obj_hash: str) -> str:
-        return cls.get_object_path(obj_hash).read_text()
+    def read_object(self, obj_hash: str) -> str:
+        return self.get_object_path(obj_hash).read_text()
 
-    @classmethod
-    def write_obj_content_to_file(cls, obj_hash: str, file_path: Path) -> None:
-        content = cls.read_object(obj_hash)
+    def write_obj_content_to_file(self, obj_hash: str, file_path: Path) -> None:
+        content = self.read_object(obj_hash)
         file_path.write_text(content)

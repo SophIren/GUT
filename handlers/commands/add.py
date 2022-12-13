@@ -12,12 +12,12 @@ class AddHandler(TreeInfoHandler):
             self.index[obj_entry.file_path] = obj_entry
 
             if obj_entry.type == IndexEntry.EntryType.FILE:
-                shutil.copy(obj_entry.file_path, self.OBJECTS_DIR_PATH / obj_entry.stage_hash)
+                shutil.copy(obj_entry.file_path, self.objects_dir_path / obj_entry.stage_hash)
             if obj_entry.type == IndexEntry.EntryType.DIRECTORY:
                 self.write_object(obj_entry.stage_hash, obj_entry.serialize_content())
 
         parent_dir = path.parent
-        while parent_dir != Path('.'):
+        while parent_dir != self.GUT_DIR_PATH.parent:
             self.index[parent_dir] = IndexEntry(file_path=parent_dir, dir_hash='',
                                                 entry_type=IndexEntry.EntryType.DIRECTORY)
             parent_entry = next(self.traverse_obj(parent_dir, only_current=True, only_staged=True))
