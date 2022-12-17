@@ -21,7 +21,7 @@ class ResetHandler(CommitInfoHandler, BranchInfoHandler):
 
     def remove_and_change_diff_index(
             self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]
-    ) -> None:  # ToDo: Duplicate with branch
+    ) -> None:
         for cur_obj in current_objs:
             if cur_obj not in to_objs:
                 del self.index[cur_obj]
@@ -32,7 +32,7 @@ class ResetHandler(CommitInfoHandler, BranchInfoHandler):
 
     def add_diff_index(
             self, current_objs: Dict[Path, IndexEntry], to_objs: Dict[Path, IndexEntry]
-    ) -> None:  # ToDo: Duplicate with branch
+    ) -> None:
         for cur_obj in to_objs:
             if cur_obj not in current_objs:
                 self.index[cur_obj] = to_objs[cur_obj]

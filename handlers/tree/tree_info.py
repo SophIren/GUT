@@ -14,7 +14,7 @@ class TreeInfoHandler(IndexHandler, ObjectHandler):
             self, obj_path: Path,
             only_current: bool = False,
             only_staged: bool = False,
-    ) -> Iterator[Union[BlobEntry, TreeEntry]]:  # ToDo: Переделать после переноса на update_index
+    ) -> Iterator[Union[BlobEntry, TreeEntry]]:
         if obj_path in self.gutignore:
             return
 

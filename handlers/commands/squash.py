@@ -10,7 +10,7 @@ class SquashHandler(CommitInfoHandler):
             print(f"\n{Fore.RED}Wrong interval!!!{Style.RESET_ALL}\n")
 
         new_parent = self.get_parent_commit_hash(lower_commit)
-        self.change_commit_parent(upper_commit, new_parent)  # ToDo: Change hash (filename) if commits
+        self.change_commit_parent(upper_commit, new_parent)
 
         for commit in commit_interval:
             self.delete_object(commit)

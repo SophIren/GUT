@@ -7,7 +7,7 @@ from index_objects.index_entry import IndexEntry
 
 class TreeWriteHandler(TreeInfoHandler):
     def drop_unchanged_commited(self, tree_obj_path: Path) -> None:
-        self.update_index()  # Todo: Поставить это вместо traverse_obj в add и status
+        self.update_index()
         for obj_type, obj_hash, obj_path in TreeWriteHandler.parse_tree(tree_obj_path):
             index_entry = self.index[obj_path]
             if index_entry.dir_hash == index_entry.repo_hash:

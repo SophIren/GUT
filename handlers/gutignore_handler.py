@@ -4,8 +4,8 @@ from typing import Set
 from gut_settings import GutSettings
 
 
-class GutignoreHandler(GutSettings):  # ToDo: Не наследовать от настроек?
-    def __init__(self):  # Todo: сделать чтобы подходило под руглярки
+class GutignoreHandler(GutSettings):
+    def __init__(self):
         super().__init__()
         self.gutignore = self.read_gutignore()
 
